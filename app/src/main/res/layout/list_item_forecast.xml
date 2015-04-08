@@ -9,7 +9,7 @@
     <ImageView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:id="@+id/ist_item_icon"
+        android:id="@+id/list_item_icon"
         android:src="@drawable/ic_launcher" />
 
     <LinearLayout
@@ -46,7 +46,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="New Text"
-            android:id="@+id/list_item_low_texview" />
+            android:id="@+id/list_item_low_textview" />
     </LinearLayout>
 </LinearLayout>
 

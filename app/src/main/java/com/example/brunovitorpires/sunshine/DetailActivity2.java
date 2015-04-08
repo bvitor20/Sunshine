@@ -18,6 +18,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.os.Build;
+import android.widget.ShareActionProvider;
 import android.widget.TextView;
 
 import com.example.brunovitorpires.sunshine.data.WheatherContract;
@@ -27,7 +28,7 @@ public class DetailActivity2 extends ActionBarActivity {
 
     public static final String DATE_KEY = "forecast_date";
     private static final String LOCATION_KEY = "location";
-
+    private static final String FORECAST_SHARE_HASHTAG = "#SunshineApp";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -60,7 +61,7 @@ public class DetailActivity2 extends ActionBarActivity {
 
 
 
-                return true;
+                return true;//alterar p true
             case R.id.action_settings:
                 startActivity(new Intent(this, SettingsActivity2.class));
 
@@ -77,7 +78,7 @@ public class DetailActivity2 extends ActionBarActivity {
         String mDate;
         public static final String DATE_KEY = "forecast_date";
 
-       // ainda n]ao fiz -  private ShareActionProvider mShareActionProvider;
+       private ShareActionProvider mShareActionProvider;
         private String mLocation;
         private String mForecast;
 
@@ -95,6 +96,14 @@ public class DetailActivity2 extends ActionBarActivity {
         @Override
         public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
             return inflater.inflate(R.layout.fragment_detail_activity2, container, false);
+
+        }
+        private Intent createShareIntent(){
+            Intent it = new Intent(Intent.ACTION_SEND);
+            it.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
+            it.setType("text/plain");
+            it.putExtra(Intent.EXTRA_TEXT, mForecast +" #SunshineApp");
+            return it;
         }
 
         @Override
@@ -110,27 +119,43 @@ public class DetailActivity2 extends ActionBarActivity {
         @Override
         public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
             if (data.moveToFirst()) {
-                String date = data.getString(data.getColumnIndex(
-                        WheatherContract.WeatherEntry.COLUMN_DATETEXT));
+
+                boolean isMetric = Utility.isMetric(getActivity());
+
+                String date = Utility.getFriendlyDayString(getActivity(),data.getString(data.getColumnIndex(
+                        WheatherContract.WeatherEntry.COLUMN_DATETEXT)));
                 String descr = data.getString(data.getColumnIndex(
                         WheatherContract.WeatherEntry.COLUMN_SHORT_DESC));
-                String max = data.getString(data.getColumnIndex(
-                        WheatherContract.WeatherEntry.COLUMN_MAX_TEMP));
-                String min = data.getString(data.getColumnIndex(
-                        WheatherContract.WeatherEntry.COLUMN_MIN_TEMP));
-            // Outros campos...
+                String max = Utility.formatTemperature(getActivity(),data.getDouble(data.getColumnIndex(WheatherContract.WeatherEntry.COLUMN_MAX_TEMP)),isMetric);
+                String min = Utility.formatTemperature(getActivity(),data.getDouble(data.getColumnIndex(WheatherContract.WeatherEntry.COLUMN_MIN_TEMP)),isMetric);
+                String degress= Utility.formatTemperature(getActivity(),data.getDouble(data.getColumnIndex(WheatherContract.WeatherEntry.COLUMN_DEGREES)),isMetric);
+                String humidity = String.valueOf(data.getDouble(data.getColumnIndex(WheatherContract.WeatherEntry.COLUMN_HUMIDITY)));
+                String wind = String.valueOf(data.getDouble(data.getColumnIndex(WheatherContract.WeatherEntry.COLUMN_WIND_SPEED)));
+                String pressure = String.valueOf(data.getDouble(data.getColumnIndex(WheatherContract.WeatherEntry.COLUMN_PRESSURE)));
+
                 View view = getView();
                 if (view != null) {
                     ((TextView) view.findViewById(R.id.text_forecast)).setText(date);
                     ((TextView) view.findViewById(R.id.text_forecast_descr)).setText(descr);
                     ((TextView) view.findViewById(R.id.text_forecast_tempMax)).setText(max);
                     ((TextView) view.findViewById(R.id.text_forecast_tempMin)).setText(min);
+                    ((TextView) view.findViewById(R.id.text_forecast_degress)).setText(degress);
+                    ((TextView) view.findViewById(R.id.text_forecast_humidity)).setText(humidity);
+                    ((TextView) view.findViewById(R.id.text_forecast_winSpeed)).setText(wind);
+                    ((TextView) view.findViewById(R.id.text_forecast_pressure)).setText(pressure);
+
+
+
+
             // Outros campos...
                 }
                 mForecast = date +" - " + descr +" - " + max +"/"+ min;
-               //ainda não fiz -  mShareActionProvider.setShareIntent(createShareIntent());
+               //mShareActionProvider.setShareIntent(createShareIntent());
             }
         }
+
+
+
         @Override
         public void onLoaderReset(Loader<Cursor> loader) {
         }
